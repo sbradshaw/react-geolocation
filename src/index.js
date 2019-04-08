@@ -6,6 +6,7 @@ import App from "./pages/App";
 import Start from "./pages/Start";
 import Context from "./context";
 import reducer from "./reducer";
+import ProtectedRoute from "./ProtectedRoute";
 
 require("dotenv").config();
 
@@ -19,7 +20,7 @@ const Root = () => {
     <Router>
       <Context.Provider value={{ state, dispatch }}>
         <Switch>
-          <Route exact path="/" component={App} />
+          <ProtectedRoute exact path="/" component={App} />
           <Route exact path="/login" component={Start} />
         </Switch>
       </Context.Provider>
