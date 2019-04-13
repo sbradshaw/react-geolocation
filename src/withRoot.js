@@ -7,14 +7,14 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      light: grey[300],
-      main: grey[500],
-      dark: grey[800]
+      light: grey[500],
+      main: grey[800],
+      dark: grey[900]
     },
     secondary: {
-      light: pink[200],
-      main: pink[500],
-      dark: pink[700]
+      light: pink[100],
+      main: pink[200],
+      dark: pink[300]
     }
   },
   typography: {
