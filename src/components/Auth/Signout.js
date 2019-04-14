@@ -11,7 +11,6 @@ const Signout = ({ classes }) => {
 
   const onSignout = () => {
     dispatch({ type: "SIGNOUT_USER" });
-    console.log("Signed out user...");
   };
 
   return (
