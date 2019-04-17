@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import ReactMapGL, { NavigationControl, Marker } from "react-map-gl";
 import { withStyles } from "@material-ui/core/styles";
 
+import Blog from "./Blog";
+import Context from "../context";
 import PinIcon from "./PinIcon";
 
 const INITIAL_VIEWPORT = {
@@ -13,6 +15,8 @@ const INITIAL_VIEWPORT = {
 const Map = ({ classes }) => {
   const [viewport, setViewport] = useState(INITIAL_VIEWPORT);
   const [userPosition, setUserPosition] = useState(null);
+  const { state, dispatch } = useContext(Context);
+
   useEffect(() => {
     getUserPosition();
   }, []);
@@ -35,6 +39,19 @@ const Map = ({ classes }) => {
     }
   };
 
+  const handleMapClick = ({ lngLat, leftButton }) => {
+    if (!leftButton) return;
+    if (!state.draft) {
+      dispatch({ type: "CREATE_DRAFT" });
+    }
+
+    const [longitude, latitude] = lngLat;
+    dispatch({
+      type: "UPDATE_DRAFT_LOCATION",
+      payload: { longitude, latitude }
+    });
+  };
+
   return (
     <div className={classes.root}>
       <ReactMapGL
@@ -43,6 +60,7 @@ const Map = ({ classes }) => {
         width="100vw"
         height="calc(100vw - 64px)" // 64px header height
         onViewportChange={changedViewport => setViewport(changedViewport)}
+        onClick={handleMapClick}
         {...viewport}
       >
         <div className={classes.navigationControl}>
@@ -54,13 +72,24 @@ const Map = ({ classes }) => {
           <Marker
             latitude={userPosition.latitude}
             longitude={userPosition.longitude}
-            offsetLeft={-50}
-            offsetTop={-200}
+            offsetLeft={-19}
+            offsetTop={-37}
           >
-            <PinIcon size={40} color="#c2185b" />
+            <PinIcon size={40} color="#ff80ab" />
+          </Marker>
+        )}
+        {state.draft && (
+          <Marker
+            latitude={state.draft.latitude}
+            longitude={state.draft.longitude}
+            offsetLeft={-19}
+            offsetTop={-37}
+          >
+            <PinIcon size={40} color="#c51162" />
           </Marker>
         )}
       </ReactMapGL>
+      <Blog />
     </div>
   );
 };
