@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { GraphQLClient } from "graphql-request";
 import { withStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import TextField from "@material-ui/core/TextField";
@@ -10,12 +11,14 @@ import ClearIcon from "@material-ui/icons/Clear";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
 
 import Context from "../../context";
+import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
 
 const CreatePin = ({ classes }) => {
-  const { dispatch } = useContext(Context);
+  const { state, dispatch } = useContext(Context);
   const [title, setTitle] = useState("");
   const [image, setImage] = useState("");
   const [content, setContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleImageUpload = async () => {
     const data = new FormData();
@@ -31,9 +34,32 @@ const CreatePin = ({ classes }) => {
   };
 
   const handleSubmit = async event => {
-    event.preventDefault();
-    const url = await handleImageUpload();
-    console.log({ title, image, url, content });
+    try {
+      event.preventDefault();
+      setSubmitting(true);
+      const idToken = window.gapi.auth2
+        .getAuthInstance()
+        .currentUser.get()
+        .getAuthResponse().id_token;
+      const client = new GraphQLClient("http://localhost:4000/graphql", {
+        headers: { authorization: idToken }
+      });
+      const url = await handleImageUpload();
+      const { latitude, longitude } = state.draft;
+      const variables = { title, image: url, content, latitude, longitude };
+
+      console.log(variables);
+
+      const { createPin } = await client.request(
+        CREATE_PIN_MUTATION,
+        variables
+      );
+      console.log("Pin created", { createPin });
+      handleDeleteDraft();
+    } catch (error) {
+      setSubmitting(false);
+      console.log("Pin creation error", error);
+    }
   };
 
   const handleDeleteDraft = event => {
@@ -105,7 +131,7 @@ const CreatePin = ({ classes }) => {
           className={classes.button}
           variant="contained"
           color="secondary"
-          disabled={!title.trim() || !image || !content.trim()}
+          disabled={!title.trim() || !image || !content.trim() || submitting}
           onClick={handleSubmit}
         >
           Submit

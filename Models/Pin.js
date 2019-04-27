@@ -9,7 +9,7 @@ const PinSchema = new mongoose.Schema(
     longitude: Number,
     author: {
       type: mongoose.Schema.ObjectId,
-      ref: "UserSchema"
+      ref: "User"
     },
     comments: [
       {
@@ -20,7 +20,7 @@ const PinSchema = new mongoose.Schema(
         },
         author: {
           type: mongoose.Schema.ObjectId,
-          ref: "UserSchema"
+          ref: "User"
         }
       }
     ]
