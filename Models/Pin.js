@@ -14,7 +14,7 @@ const PinSchema = new mongoose.Schema(
     comments: [
       {
         text: String,
-        createAt: {
+        createdAt: {
           type: Date,
           default: Date.now
         },
