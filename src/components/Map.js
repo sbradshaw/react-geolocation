@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import ReactMapGL, { NavigationControl, Marker } from "react-map-gl";
+import ReactMapGL, { NavigationControl, Marker, Popup } from "react-map-gl";
+import differenceInMinutes from "date-fns/difference_in_minutes";
 import { withStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import DeleteIcon from "@material-ui/icons/DeleteTwoTone";
+import Typography from "@material-ui/core/Typography";
 
 import { useClient } from "../client";
 import { GET_PINS_QUERY } from "../graphql/queries";
@@ -25,6 +29,7 @@ const Map = ({ classes }) => {
   useEffect(() => {
     getUserPosition();
   }, []);
+  const [popup, setPopup] = useState(null);
 
   const getUserPosition = () => {
     if ("geolocation" in navigator) {
@@ -62,6 +67,19 @@ const Map = ({ classes }) => {
     });
   };
 
+  const highlightNewPin = pin => {
+    const isNewPin =
+      differenceInMinutes(Date.now(), Number(pin.createdAt)) <= 30;
+    return isNewPin ? "#673ab7" : "#f06292";
+  };
+
+  const handleSelectPin = pin => {
+    setPopup(pin);
+    dispatch({ type: "SET_PIN", payload: pin });
+  };
+
+  const isAuthUser = () => state.currentUser._id === popup.author._id;
+
   return (
     <div className={classes.root}>
       <ReactMapGL
@@ -85,7 +103,7 @@ const Map = ({ classes }) => {
             offsetLeft={-19}
             offsetTop={-37}
           >
-            <PinIcon size={40} color="#c51162" />
+            <PinIcon size={40} color="#c2185b" />
           </Marker>
         )}
         {state.draft && (
@@ -95,7 +113,7 @@ const Map = ({ classes }) => {
             offsetLeft={-19}
             offsetTop={-37}
           >
-            <PinIcon size={40} color="#ff80ab" />
+            <PinIcon size={40} color="#f06292" />
           </Marker>
         )}
         {state.pins.map(pin => (
@@ -106,9 +124,39 @@ const Map = ({ classes }) => {
             offsetLeft={-19}
             offsetTop={-37}
           >
-            <PinIcon size={40} color="#ff80ab" />
+            <PinIcon
+              onClick={() => handleSelectPin(pin)}
+              size={40}
+              color={highlightNewPin(pin)}
+            />
           </Marker>
         ))}
+        {popup && (
+          <Popup
+            tipSize={5}
+            anchor="top"
+            latitude={popup.latitude}
+            longitude={popup.longitude}
+            closeOnClick={false}
+            onClose={() => setPopup(null)}
+          >
+            <img
+              className={classes.popupImage}
+              src={popup.image}
+              alt={popup.title}
+            />
+            <div className={classes.popupTab}>
+              <Typography>
+                {popup.latitude.toFixed(6)}, {popup.longitude.toFixed(6)}
+              </Typography>
+              {isAuthUser && (
+                <Button>
+                  <DeleteIcon className={classes.deleteIcon} />
+                </Button>
+              )}
+            </div>
+          </Popup>
+        )}
       </ReactMapGL>
       <Blog />
     </div>
