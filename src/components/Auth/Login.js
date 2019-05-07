@@ -30,6 +30,7 @@ const Login = ({ classes }) => {
 
   const onFailure = error => {
     console.error("Error logging into application", error);
+    dispatch({ type: "IS_LOGGED_IN", payload: false });
   };
 
   return (
