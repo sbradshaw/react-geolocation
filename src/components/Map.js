@@ -6,6 +6,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/DeleteTwoTone";
 import Typography from "@material-ui/core/Typography";
+import { unstable_useMediaQuery as mq } from "@material-ui/core/useMediaQuery";
 
 import { useClient } from "../client";
 import { GET_PINS_QUERY } from "../graphql/queries";
@@ -26,6 +27,7 @@ const INITIAL_VIEWPORT = {
 };
 
 const Map = ({ classes }) => {
+  const mobileSize = mq("(max-width: 650px)");
   const client = useClient();
   const { state, dispatch } = useContext(Context);
   useEffect(() => {
@@ -93,12 +95,13 @@ const Map = ({ classes }) => {
   const isAuthUser = () => state.currentUser._id === popup.author._id;
 
   return (
-    <div className={classes.root}>
+    <div className={mobileSize ? classes.rootMobile : classes.root}>
       <ReactMapGL
         mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         width="100vw"
         height="calc(100vw - 64px)" // 64px header height
+        scrollZoom={!mobileSize}
         onViewportChange={changedViewport => setViewport(changedViewport)}
         onClick={handleMapClick}
         {...viewport}

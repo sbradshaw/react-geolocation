@@ -4,11 +4,13 @@ import AppBar from "@material-ui/core/AppBar";
 import PlaceIcon from "@material-ui/icons/Place";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import { unstable_useMediaQuery as mq } from "@material-ui/core/useMediaQuery";
 
 import Context from "../context";
 import Signout from "../components/Auth/Signout";
 
 const Header = ({ classes }) => {
+  const mobileSize = mq("(max-width: 650px)");
   const { state } = useContext(Context);
   const { currentUser } = state;
 
@@ -19,6 +21,7 @@ const Header = ({ classes }) => {
           <div className={classes.grow}>
             <PlaceIcon className={classes.icon} />
             <Typography
+              className={mobileSize ? classes.mobile : ""}
               component="h1"
               variant="h6"
               color="inherit"
@@ -34,7 +37,12 @@ const Header = ({ classes }) => {
                 alt={currentUser.name}
                 src={currentUser.picture}
               />
-              <Typography variant="h5" color="inherit" nowrap="true">
+              <Typography
+                className={mobileSize ? classes.mobile : ""}
+                variant="h5"
+                color="inherit"
+                nowrap="true"
+              >
                 {currentUser.name}
               </Typography>
             </div>
